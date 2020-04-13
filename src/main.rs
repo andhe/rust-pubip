@@ -13,6 +13,14 @@ fn https_ifconfig_me() -> Result<PubIPResult, &'static str> {
     http_get("https://ifconfig.me/ip", "ifconfig.me (https)")
 }
 
+fn https_icanhazip() -> Result<PubIPResult, &'static str> {
+    http_get("https://icanhazip.com/", "icanhazip (https)")
+}
+
+fn https_ipv4_icanhazip() -> Result<PubIPResult, &'static str> {
+    http_get("https://ipv4.icanhazip.com/", "icanhazip (ipv4, https)")
+}
+
 fn http_get(url: &str, provider: &'static str) -> Result<PubIPResult, &'static str> {
     let resp = ureq::get(url)
         .timeout_connect(10_000)
@@ -32,13 +40,21 @@ fn http_get(url: &str, provider: &'static str) -> Result<PubIPResult, &'static s
         Err("Request to ifconfig.co failed.")
     }
 }
+
+fn print_as_env(pubip: &PubIPResult) {
+    println!("PUBLIC_IP_PROVIDER=\"{}\"", pubip.provider);
+    println!("PUBLIC_IP={}", pubip.ip);
+}
+
 fn main() {
-    if let Ok(pubip) = https_ifconfig_me() {
-        println!("PUBLIC_IP_PROVIDER=\"{}\"", pubip.provider);
-        println!("PUBLIC_IP={}", pubip.ip);
+    if let Ok(pubip) = https_ipv4_icanhazip() {
+        print_as_env(&pubip);
+    } else if let Ok(pubip) = https_icanhazip() {
+        print_as_env(&pubip);
+    } else if let Ok(pubip) = https_ifconfig_me() {
+        print_as_env(&pubip);
     } else if let Ok(pubip) = https_ifconfig_co() {
-        println!("PUBLIC_IP_PROVIDER=\"{}\"", pubip.provider);
-        println!("PUBLIC_IP={}", pubip.ip);
+        print_as_env(&pubip);
     } else {
         eprintln!("Failed to get ip.");
         std::process::exit(1);
