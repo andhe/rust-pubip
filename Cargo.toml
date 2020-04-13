@@ -1,0 +1,7 @@
+[package]
+name = "pubip"
+version = "0.1.0"
+authors = ["Andreas Henriksson <andreas@fatal.se>"]
+edition = "2018"
+
+[dependencies]
