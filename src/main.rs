@@ -15,9 +15,9 @@ fn https_ifconfig_me() -> Result<PubIPResult, &'static str> {
 
 fn http_get(url: &str, provider: &'static str) -> Result<PubIPResult, &'static str> {
     let resp = ureq::get(url)
-        .timeout_connect(1_000)
-        .timeout_read(1_000)
-        .timeout_write(1_000)
+        .timeout_connect(10_000)
+        .timeout_read(10_000)
+        .timeout_write(10_000)
         .call();
 
     // .ok() tells if response is 200-299.
