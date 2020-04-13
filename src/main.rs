@@ -41,6 +41,25 @@ fn http_get(url: &str, provider: &'static str) -> Result<PubIPResult, &'static s
     }
 }
 
+/* More potential providers:
+
+    # HTTP
+
+    http://ipecho.net/plain
+    http://indent.me
+    http://bot.whatismyipaddress.com
+    https://diagnostic.opendns.com/myip
+    http://checkip.amazonaws.com
+    http://whatismyip.akamai.com
+
+    # DNS
+
+    dig +short myip.opendns.com @resolver1.opendns.com
+    dig +short ANY whoami.akamai.net @ns1-1.akamaitech.net
+    dig +short ANY o-o.myaddr.l.google.com @ns1.google.com
+
+*/
+
 fn print_as_env(pubip: &PubIPResult) {
     println!("PUBLIC_IP_PROVIDER=\"{}\"", pubip.provider);
     println!("PUBLIC_IP={}", pubip.ip);
