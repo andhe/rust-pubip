@@ -7,6 +7,10 @@ fn https_ifconfig_co() -> Result<PubIPResult, &'static str> {
     http_get("https://ifconfig.co/ip", "ifconfig.co (https)")
 }
 
+fn https_ifconfig_me() -> Result<PubIPResult, &'static str> {
+    http_get("https://ifconfig.me/ip", "ifconfig.me (https)")
+}
+
 fn http_get(url: &str, provider: &'static str) -> Result<PubIPResult, &'static str> {
     let resp = ureq::get(url)
         .timeout_connect(1_000)
@@ -27,7 +31,10 @@ fn http_get(url: &str, provider: &'static str) -> Result<PubIPResult, &'static s
     }
 }
 fn main() {
-    if let Ok(pubip) = https_ifconfig_co() {
+    if let Ok(pubip) = https_ifconfig_me() {
+        println!("PUBLIC_IP_PROVIDER=\"{}\"", pubip.provider);
+        println!("PUBLIC_IP={}", pubip.ip);
+    } else if let Ok(pubip) = https_ifconfig_co() {
         println!("PUBLIC_IP_PROVIDER=\"{}\"", pubip.provider);
         println!("PUBLIC_IP={}", pubip.ip);
     } else {
