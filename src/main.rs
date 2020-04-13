@@ -1,3 +1,8 @@
+// traits must be in scope, so import them.
+use dnssector::rr_iterator::RdataIterable;
+use dnssector::rr_iterator::DNSIterable;
+use std::net::ToSocketAddrs;
+
 struct PubIPResult {
     provider: &'static str,
     ip: String,
@@ -60,13 +65,74 @@ fn http_get(url: &str, provider: &'static str) -> Result<PubIPResult, &'static s
 
 */
 
+
+fn dns_google() -> Result<PubIPResult, std::io::Error> {
+    dns_lookup("ns1.google.com:53", "o-o.myaddr.l.google.com", "ANY", "google (DNS)")
+}
+
+fn dns_akamai() -> Result<PubIPResult, std::io::Error> {
+    dns_lookup("ns1-1.akamaitech.net:53",  "whoami.akamai.net", "A", "akamai (DNS)")
+}
+
+fn dns_lookup(upstream_server_name: &str, lookup_name: &str, query_type: &str, provider: &'static str) -> Result<PubIPResult, std::io::Error> {
+    let upstream_server_addr_vec: Vec<_> = upstream_server_name.to_socket_addrs().expect("Failed to parse upstream server name").collect();
+    let upstream_server_addr: std::net::SocketAddr = upstream_server_addr_vec[0];
+
+    let local_addr = match upstream_server_addr {
+        std::net::SocketAddr::V4(_) => std::net::SocketAddr::new(std::net::IpAddr::from([0; 4]), 0),
+        std::net::SocketAddr::V6(_) => std::net::SocketAddr::new(std::net::IpAddr::from([0; 16]), 0),
+    };
+
+    let parsed_query = dnssector::gen::query(
+        lookup_name.as_bytes(),
+        dnssector::constants::Type::from_string("A").unwrap(),
+        dnssector::constants::Class::from_string("IN").unwrap(),
+        );
+
+    let mut parsed_response = {
+        let query = parsed_query.unwrap().into_packet();
+        let socket = std::net::UdpSocket::bind(local_addr).unwrap();
+        let _ = socket.set_read_timeout(Some(std::time::Duration::new(5, 0)));
+        socket.connect(upstream_server_addr)?;
+        socket.send(&query)?;
+        let mut response = vec![0; dnssector::constants::DNS_MAX_COMPRESSED_SIZE];
+        let response_len = socket
+            .recv(&mut response)
+            .map_err(|_| std::io::Error::new(std::io::ErrorKind::WouldBlock, "Timeout"))?;
+        response.truncate(response_len);
+        dnssector::DNSSector::new(response)
+            .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidInput, e.to_string()))?
+            .parse()
+            .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidInput, e.to_string()))?
+    };
+
+    let mut it = parsed_response.into_iter_answer();
+    while let Some(item) = it {
+        if let Ok(std::net::IpAddr::V4(addr)) = item.rr_ip() {
+            return Ok(PubIPResult {
+                provider: provider,
+                ip: addr.to_string(),
+            });
+        }
+        it = item.next();
+    }
+
+    Err(std::io::Error::new(
+                std::io::ErrorKind::PermissionDenied,
+                "Failed to find public ip in dns lookup",
+            ))
+}
+
+
 fn print_as_env(pubip: &PubIPResult) {
     println!("PUBLIC_IP_PROVIDER=\"{}\"", pubip.provider);
     println!("PUBLIC_IP={}", pubip.ip);
 }
 
 fn main() {
-    if let Ok(pubip) = https_ipv4_icanhazip() {
+    if let Ok(pubip) = dns_akamai() {
+        print_as_env(&pubip);
+    } else if let Ok(pubip) = https_ipv4_icanhazip() {
         print_as_env(&pubip);
     } else if let Ok(pubip) = https_icanhazip() {
         print_as_env(&pubip);
