@@ -3,7 +3,7 @@ fn main() {
 
     // .ok() tells if response is 200-299.
     if resp.ok() {
-        let mut ip = resp.into_string().unwrap();
+        let ip = resp.into_string().unwrap();
         println!("Response: {}", ip.trim());
     } else {
         println!("Failed to get ip.");
