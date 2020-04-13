@@ -4,7 +4,11 @@ struct PubIPResult {
 }
 
 fn https_ifconfig_co() -> Result<PubIPResult, &'static str> {
-    let resp = ureq::get("https://ifconfig.co/ip")
+    http_get("https://ifconfig.co/ip", "ifconfig.co (https)")
+}
+
+fn http_get(url: &str, provider: &'static str) -> Result<PubIPResult, &'static str> {
+    let resp = ureq::get(url)
         .timeout_connect(1_000)
         .timeout_read(1_000)
         .timeout_write(1_000)
@@ -15,14 +19,13 @@ fn https_ifconfig_co() -> Result<PubIPResult, &'static str> {
         let ip = resp.into_string().unwrap();
 
         Ok(PubIPResult {
-            provider: "ifconfig.co (https)",
+            provider: provider,
             ip: String::from(ip.trim()),
         })
     } else {
         Err("Request to ifconfig.co failed.")
     }
 }
-
 fn main() {
     if let Ok(pubip) = https_ifconfig_co() {
         println!("PUBLIC_IP_PROVIDER=\"{}\"", pubip.provider);
