@@ -3,10 +3,12 @@ struct PubIPResult {
     ip: String,
 }
 
+// supports ipv6
 fn https_ifconfig_co() -> Result<PubIPResult, &'static str> {
     http_get("https://ifconfig.co/ip", "ifconfig.co (https)")
 }
 
+// ipv4-only?
 fn https_ifconfig_me() -> Result<PubIPResult, &'static str> {
     http_get("https://ifconfig.me/ip", "ifconfig.me (https)")
 }
