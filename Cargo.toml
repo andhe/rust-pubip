@@ -5,3 +5,4 @@ authors = ["Andreas Henriksson <andreas@fatal.se>"]
 edition = "2018"
 
 [dependencies]
+ureq = "0.12.1"
