@@ -134,6 +134,13 @@ fn dns_lookup(upstream_server_name: &str, lookup_name: &str, query_type: &str, p
                 provider: provider,
                 ip: addr.to_string(),
             });
+        } else if let Ok(rr_text) = item.rr_txt() {
+            if let Ok(txt) = String::from_utf8(rr_text) {
+                return Ok(PubIPResult {
+                    provider: provider,
+                    ip: txt,
+                });
+            }
         }
         it = item.next();
     }
