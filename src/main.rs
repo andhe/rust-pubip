@@ -92,7 +92,7 @@ fn dns_lookup(upstream_server_name: &str, lookup_name: &str, query_type: &str, p
 
     let parsed_query = dnssector::gen::query(
         lookup_name.as_bytes(),
-        dnssector::constants::Type::from_string("A").unwrap(),
+        dnssector::constants::Type::from_string(query_type).unwrap(),
         dnssector::constants::Class::from_string("IN").unwrap(),
         );
 
