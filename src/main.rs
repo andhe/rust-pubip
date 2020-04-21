@@ -1,3 +1,9 @@
+/*
+ * SPDX-FileCopyrightText: 2020 Andreas Henriksson <andreas@fatal.se>
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
 // traits must be in scope, so import them.
 use dnssector::rr_iterator::RdataIterable;
 use dnssector::rr_iterator::DNSIterable;
