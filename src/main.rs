@@ -74,6 +74,15 @@ fn http_get(url: &str, provider: &'static str) -> Result<PubIPResult, &'static s
 
 
 fn dns_google() -> Result<PubIPResult, std::io::Error> {
+    // NOTE: problem 1: dnssector::constants::Type::from_string
+    //                  can't translate "ANY" to Type::ANY.
+    //                  Workaround: change query_type argument
+    //                  to directly take dnssector::constants::Type
+    //                  and pass in dnssector::constants::Type::ANY
+    //                  to avoid needing Type::from_string.
+    //       problem 2: the reply is a TXT record which dnssector
+    //                  has no decode method for (similar to rr_ip).
+    //                  Workaround: none known.
     dns_lookup("ns1.google.com:53", "o-o.myaddr.l.google.com", "ANY", "google (DNS)")
 }
 
