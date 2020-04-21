@@ -158,7 +158,9 @@ fn print_as_env(pubip: &PubIPResult) {
 }
 
 fn main() {
-    if let Ok(pubip) = dns_akamai() {
+    if let Ok(pubip) = dns_google() {
+        print_as_env(&pubip);
+    } else if let Ok(pubip) = dns_akamai() {
         print_as_env(&pubip);
     } else if let Ok(pubip) = https_ipv4_icanhazip() {
         print_as_env(&pubip);
