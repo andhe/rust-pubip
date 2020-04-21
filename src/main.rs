@@ -120,6 +120,11 @@ fn dns_lookup(upstream_server_name: &str, lookup_name: &str, query_type: &str, p
                 provider: provider,
                 ip: addr.to_string(),
             });
+        } else if let Ok(std::net::IpAddr::V6(addr)) = item.rr_ip() {
+            return Ok(PubIPResult {
+                provider: provider,
+                ip: addr.to_string(),
+            });
         }
         it = item.next();
     }
