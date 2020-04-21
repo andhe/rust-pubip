@@ -56,6 +56,7 @@ fn http_get(url: &str, provider: &'static str) -> Result<PubIPResult, &'static s
     https://diagnostic.opendns.com/myip
     http://checkip.amazonaws.com
     http://whatismyip.akamai.com
+    https://myip.biturl.top/
 
     # DNS
 
