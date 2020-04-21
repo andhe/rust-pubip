@@ -6,4 +6,5 @@ edition = "2018"
 
 [dependencies]
 ureq = "0.12.1"
-dnssector = "0.1.3"
+#dnssector = "0.1.3"
+dnssector = { git = "https://github.com/andhe/dnssector.git" }
